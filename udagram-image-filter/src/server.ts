@@ -1,6 +1,7 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import bodyParser from 'body-parser';
-import {filterImageFromURL, deleteLocalFiles } from './util/util';
+import {filterImageFromURL, deleteLocalFiles} from './util/util';
+const targetBaseURL = 'https://c402277.ssl.cf1.rackcdn.com/photos/906/images/story_full_width/sumatran-tiger-circle_44312149.jpg?1345533208';
 
 (async () => {                                                                                                                                                                                                                                                                                                         
 
@@ -8,7 +9,7 @@ import {filterImageFromURL, deleteLocalFiles } from './util/util';
   const app = express();
 
   // Set the network port
-  const port = process.env.PORT || 8082;
+  const PORT = process.env.PORT || 8082;
 
   // Use the body parser middleware for post requests
   app.use(bodyParser.json());
@@ -27,33 +28,34 @@ import {filterImageFromURL, deleteLocalFiles } from './util/util';
   // RETURNS
   //   the filtered image file [!!TIP res.sendFile(filteredpath); might be useful]
 
-  /**************************************************************************** */
-  app.get("/filteredimage/", async (req, res) => {
-    const url = req.query.image_url as string;
+  /*****************************************************************************/
+  app.get("/filteredimage", async (req: Request, res: Response) => 
+    {const {image_url} = req.query;
 
-    if (!url) {
-      res.sendStatus(400).send(`image_url is required`);
-    }
+      if (URL) {
+        res.sendStatus(400).send(`image_url is required`);
+      }
 
-    try {
-      const filteredpath = await filterImageFromURL(url);
-      res.sendFile(filteredpath, () => deleteLocalFiles([filteredpath]));
-    } catch(error) {
-      res.sendStatus(422); 
-    }
-  });
+      try {
+        const filteredpath = await filterImageFromURL(URL);
+        res.sendFile(filteredpath, () => deleteLocalFiles([filteredpath]));
+      } catch (error) {
+        res.sendStatus(422);
+      }
+    });
+
   //! END @TODO1
 
   // Root Endpoint
   // Displays a simple message to the user
-  app.get("/", async (req, res) => {
-    res.send("try GET /filteredimage?image_url={{}}")
+  app.get("/", async (_req, res) => {
+    res.sendFile("try GET /filteredimage?image_url=https://c402277.ssl.cf1.rackcdn.com/photos/906/images/story_full_width/sumatran-tiger-circle_44312149.jpg?1345533208")
   });
 
 
   // Start the Server
-  app.listen(port, () => {
-    console.log(`server running http://localhost:${port}`);
-    console.log(`press CTRL+C to stop server`);
+  app.listen(PORT, () => {
+      console.log(`server running http://localhost:${PORT}`);
+      console.log(`press CTRL+C to stop server`);
   });
 })();
